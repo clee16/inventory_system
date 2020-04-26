@@ -4,11 +4,10 @@
 #include "record.h"
 
 // function prototypes
-void sort(Record records[], int * psize);
-void defragment(Record[]);
-void display_stats(Record[]);
+void sort(Record records[], int * psize, int * pmax);
+int defragment(Record[], int * psize, int * pmax);
 void calculate_asset(Record records[], int * psize);
-Record * rescale_system(Record * records);
-Record * reset_system(Record * records);
+Record * rescale_system(Record * records, int * pmax);
+Record * reset_system(Record * records, int * psize, int * pmax);
 
 #endif

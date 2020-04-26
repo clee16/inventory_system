@@ -3,19 +3,33 @@
 #include <stdlib.h>
 #include "base.h"
 
+// Function: isFull()
+// Check if records[] is full(size exceeds max_records)
+int isFull(int size, int max) {
+  if (size < max)
+    return 0;
+  else
+    return 1;
+}
+
 // CREATE functionality
 // Function: add_new_item()
 // Input: record - array of Records; this may contain empty elements in the middle
 // Output: none
 // Create a new data record from the standard input
-void add_new_item(Record records[], int * psize){
+void add_new_item(Record records[], int * psize, int * pmax){
+  if (isFull(*psize, *pmax)) {
+    printf("System Error: The system capacity is full. Delete unused data to free up space.\n");
+    return;
+  }
   char name[20];
   char category[20];
   int quantity;
   int price;	
   
   // Get user input
-  printf("Enter the item name: ");
+  printf("\n");
+  printf("Enter the item name    : ");
   scanf("%s", name);
   getchar();
   printf("Enter the item category: ");
@@ -24,7 +38,7 @@ void add_new_item(Record records[], int * psize){
   printf("Enter the item quantity: ");
   scanf("%d", &quantity);
   getchar();
-  printf("Enter the item price: ");
+  printf("Enter the item price   : ");
   scanf("%d", &price);
   getchar();
   
@@ -35,6 +49,8 @@ void add_new_item(Record records[], int * psize){
   records[k].quantity = quantity;
   records[k].price = price;
   
+  printf("\n\"%s\" is now added to the system.\n", records[k].name);
+
   return;
 }
 
@@ -43,12 +59,20 @@ void add_new_item(Record records[], int * psize){
 // Input: record - array of Records; this may contain empty elements in the middle
 // Output: none
 // Create a new data record from a data file
-void add_new_item_file(Record records[], int * psize){
+void add_new_item_file(Record records[], int * psize, int * pmax){
+  if (isFull(*psize, *pmax)) {
+    printf("System Error: The system capacity is full. Delete unused items to free up space.\n");
+    return;
+  }
+
   char filename[] = "add_data.csv";
   FILE * fp = fopen(filename, "rt");
   if (fp == NULL) {
-    printf("File open failed.\n");
+    printf("\nSystem Error: file open failed.\n");
     return;
+  }
+  else {
+    printf("\nReading %s...\n", filename);
   }
 
   // Read a line from the file
@@ -73,6 +97,7 @@ void add_new_item_file(Record records[], int * psize){
   records[k].price = atoi(status[3]);
 
   fclose(fp);
+  printf("\"%s\" is now added to the system.\n", records[k].name);
 
   return;
 }
@@ -84,20 +109,24 @@ void add_new_item_file(Record records[], int * psize){
 // Print a record, multiple or all records to the standard output 
 void print_inventory_status(Record records[], int * psize) {
   int show;
+  printf("\n");
   printf("Enter the number of items to be printed(0 to print all): ");
   scanf("%d", &show);
   getchar();
-  printf("\n");
 
-  if (show == 0 || show > *psize)
-    show = *psize;
+  int size = *psize;
+  if (show == 0 || show > size)
+    show = size;
   
+  if (size == 0) {
+    printf("The system contains no data.\n");
+  }
   for (int i = 0; i < show; i++) {
+    printf("\n");
     printf("Name     : %s\n", records[i].name);
     printf("Category : %s\n", records[i].category);
     printf("Quantity : %d\n", records[i].quantity);
     printf("Price    : %d\n", records[i].price);
-    printf("\n");
   }
 }
 
@@ -106,7 +135,7 @@ void print_inventory_status(Record records[], int * psize) {
 // Input: record - array of Records; this may contain empty elements in the middle
 // Output: none
 // Read/write the entire data from/to filesystem 
-void import_inventory_status(Record records[], int * psize) {
+void import_inventory_status(Record records[], int * psize, int * pmax) {
   char filename[] = "import_data.csv";
   FILE * fp = fopen(filename, "rt");
   if (fp == NULL) {
@@ -134,14 +163,22 @@ void import_inventory_status(Record records[], int * psize) {
     strcpy(records[k].category, status[1]);
     records[k].quantity = atoi(status[2]);
     records[k].price = atoi(status[3]);
+
+    if (isFull(newSize, *pmax)) {
+      printf("System Error: The system capacity is full. Delete unused items to free up space.\n");
+      printf("File import failed.\n");
+      *psize = newSize;
+      fclose(fp);
+      return;
+    }
   }
 
   if (feof(fp) != 0) {
-    printf("Imported successfully!\n");
+    printf("Importing \"%s\" was successful.\n", filename);
     *psize = newSize;
   }
   else
-    printf("Import failed.\n");
+    printf("File import failed.\n");
   
   fclose(fp);
   return;
@@ -170,16 +207,70 @@ void export_inventory_status(Record records[], int * psize) {
     fprintf(fp, "Price    : %d\n", records[i].price);
     fprintf(fp, "\n");
   }
-  printf("Exported successfully!\n");
+  printf("Exporting data to \"%s\" was successful.\n", filename);
   fclose(fp);
   return;
 }
 
+// UPDATE functionality
+// Function: update_item()
+// Input: record - array of Records; this may contain empty elements in the middle
+// Output: none
+// Update an item status
+void update_item(Record records[], int * psize) {
+  int size = *psize;
+  char update_name[20];
+  int found = 0;
+  printf("\nEnter the name of the item to update: ");
+  scanf("%s", update_name);
+  getchar();
+
+  int i;
+  for (i = 0; i < size; i++) {
+    if (strcmp(records[i].name, update_name) == 0) {
+      found = 1;
+      break;
+    }
+  }
+
+  if (!found) {
+    printf("System Error: \"%s\" does not exist.\n", update_name);
+    return;
+  }
+
+  printf("\n");
+  printf("Name     : %s\n", records[i].name);
+  printf("Category : %s\n", records[i].category);
+  printf("Quantity : %d\n", records[i].quantity);
+  printf("Price    : %d\n", records[i].price);
+  printf("\n");
+
+  printf("Enter new item name    : ");
+  scanf("%s", records[i].name);
+  getchar();
+  printf("Enter new item category: ");
+  scanf("%s", records[i].category);
+  getchar();
+  printf("Enter new item quantity: ");
+  scanf("%d", &records[i].quantity);
+  getchar();
+  printf("Enter new item price   : ");
+  scanf("%d", &records[i].price);
+  getchar();
+  printf("\n\"%s\" is now updated in the system.\n", update_name);
+
+}
+
+// DELETE functionality
+// Function: delete_item()
+// Input: record - array of Records; this may contain empty elements in the middle
+// Output: none
+// Delete an item from the system
 void delete_item(Record records[], int * psize) {
   // Get user input
   char delete_name[20];
   int found = 0;
-  printf("Enter the item to delete: ");
+  printf("\nEnter the name of the item to delete: ");
   scanf("%s", delete_name);
   getchar();
 
@@ -189,11 +280,12 @@ void delete_item(Record records[], int * psize) {
       strcpy(records[i].category, "");
       records[i].quantity = 0x0;
       records[i].price = 0x0;
-      printf("%s is deleted from the system\n", delete_name);
+      printf("\"%s\" is now deleted from the system.\n", delete_name);
+      (*psize)--;
       found = 1;
       break;
     }
   }
   if (!found)
-    printf("%s is not in the system.\n", delete_name);
+    printf("System Error: \"%s\" does not exist.\n", delete_name);
 }
