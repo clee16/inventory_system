@@ -64,6 +64,12 @@ void input_handler(char input[], int * psize){
     records = rescale_system(records, &max_records);
   else if(!strcmp(input, "12"))
     records = reset_system(records, psize, &max_records);
+
+  // This is a new function that I propse to you
+  else if(!strcmp(input, "13"))
+    find_and_show_item(records, psize);
+
+
   else if(!strcmp(input, "99"))
 		printf("Terminating... bye!\n"); // Quit - no operation (an empty statement with a semi-colon)
 	else
