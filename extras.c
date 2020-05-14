@@ -143,3 +143,39 @@ Record * reset_system(Record * records, int * psize, int * pmax) {
 
   return new_records;
 }
+
+
+// This is a new function that I propse to you
+
+// What I want to add:
+// 1. Advanced search: allows the user to find a data record(s) by specifying 2+ conditions
+
+// Function: find_and_show_item()
+// If any of the items in the list meet the category you entered and above the price you entered, print them out.
+
+void find_and_show_item(Record records[],int * psize){
+  int size = *psize;
+  char find_category[20];
+  int find_price;
+
+  printf("Enter the category you want to find: ");
+  scanf("%s",find_category);
+  getchar();
+
+  printf("The program will show you a list above the price you entered.\n");
+  printf("Enter the minimum price you want to find: ");
+  scanf("%d",&find_price);
+  getchar();
+
+  for(int i=0;i<size;i++){
+    if(strcmp(records[i].category,find_category)==0 && records[i].price >= find_price){
+      printf("\n");
+      printf("Name     : %s\n", records[i].name);
+      printf("Category : %s\n", records[i].category);
+      printf("Quantity : %d\n", records[i].quantity);
+      printf("Price    : %d\n", records[i].price);
+    }
+  }
+}
+
+
