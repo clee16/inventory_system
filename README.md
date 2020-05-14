@@ -26,6 +26,7 @@ Inventory Management System(IMS) is a user application program that implements t
 * **add_data.csv** - data file to create a new item
 * **import_data.csv** - data file to import
 * **export_data.txt** - data file to export
+* **makefile** - c makefile to compile the project
 * **a.out** - executable file
 
 ## Demo
